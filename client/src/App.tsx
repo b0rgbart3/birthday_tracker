@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { BirthdayForm } from './components/BirthdayForm';
-import { BirthdayList } from './components/BirthdayList';
-import { Cake } from 'lucide-react';
+import { useState, useEffect, useCallback } from "react";
+import { BirthdayForm } from "./components/BirthdayForm";
+import { BirthdayList } from "./components/BirthdayList";
+import { Cake } from "lucide-react";
 
 interface Birthday {
   _id: string;
@@ -12,21 +12,28 @@ interface Birthday {
 function App() {
   const [birthdays, setBirthdays] = useState<Birthday[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [sortConfig, setSortConfig] = useState<{ key: 'name' | 'date'; direction: 'asc' | 'desc' } | null>(null);
+  const [sortConfig, setSortConfig] = useState<{
+    key: "name" | "date";
+    direction: "asc" | "desc";
+  } | null>(null);
+
+  const base_URL = "https://birthdaytracker.bartdorityportfolio.online/api";
 
   const fetchBirthdays = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/birthdays');
+      const response = await fetch(`${base_URL}/birthdays`);
       if (response.ok) {
         const data = await response.json();
         setBirthdays(data);
         setError(null);
       } else {
-        setError('Failed to fetch data from server.');
+        setError("Failed to fetch data from server.");
       }
     } catch (error) {
-      console.error('Error fetching birthdays:', error);
-      setError('Cannot connect to the backend server. Please ensure it is running and MongoDB is connected.');
+      console.error("Error fetching birthdays:", error);
+      setError(
+        "Cannot connect to the backend server. Please ensure it is running and MongoDB is connected.",
+      );
     }
   }, []);
 
@@ -36,31 +43,35 @@ function App() {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:5001/api/birthdays/${id}`, {
-        method: 'DELETE',
+      const response = await fetch(`${base_URL}${id}`, {
+        method: "DELETE",
       });
       if (response.ok) {
         fetchBirthdays();
       }
     } catch (error) {
-      console.error('Error deleting birthday:', error);
+      console.error("Error deleting birthday:", error);
     }
   };
 
-  const handleSort = (key: 'name' | 'date') => {
-    let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
+  const handleSort = (key: "name" | "date") => {
+    let direction: "asc" | "desc" = "asc";
+    if (
+      sortConfig &&
+      sortConfig.key === key &&
+      sortConfig.direction === "asc"
+    ) {
+      direction = "desc";
     }
     setSortConfig({ key, direction });
 
     const sortedData = [...birthdays].sort((a, b) => {
-      if (key === 'name') {
-        return direction === 'asc' 
-          ? a.name.localeCompare(b.name) 
+      if (key === "name") {
+        return direction === "asc"
+          ? a.name.localeCompare(b.name)
           : b.name.localeCompare(a.name);
       } else {
-        return direction === 'asc'
+        return direction === "asc"
           ? new Date(a.date).getTime() - new Date(b.date).getTime()
           : new Date(b.date).getTime() - new Date(a.date).getTime();
       }
@@ -95,15 +106,17 @@ function App() {
 
           <section>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white">Tracked Birthdays</h2>
+              <h2 className="text-2xl font-bold text-white">
+                Tracked Birthdays
+              </h2>
               <span className="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-sm font-medium border border-blue-500/20">
                 {birthdays.length} Total
               </span>
             </div>
-            <BirthdayList 
-              birthdays={birthdays} 
-              onDelete={handleDelete} 
-              onSort={handleSort} 
+            <BirthdayList
+              birthdays={birthdays}
+              onDelete={handleDelete}
+              onSort={handleSort}
             />
           </section>
         </main>
